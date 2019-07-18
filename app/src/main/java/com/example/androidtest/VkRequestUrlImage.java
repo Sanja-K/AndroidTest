@@ -47,7 +47,11 @@ public abstract class VkRequestUrlImage  {
 
     public static final String APP_PREFERENCES= "url_images";
 
+    ArrayList<String> urll =new ArrayList<>();
+    ArrayList<String> Idim = new ArrayList<>();
 
+    Model model= new Model();
+    RealmController realmController = new RealmController();
 
     private VKRequest VKParametersRequst(String owner_id, String album_ids, String album_id,
                                          String count_sample, String version_vk_api, String method_api){
@@ -61,40 +65,34 @@ public abstract class VkRequestUrlImage  {
     }
 
 
+    private void parseJsonVk(VKResponse response){
+    JSONObject jsonObject = response.json;
+
+    realmController.removeItemById();
+
+        try {
+        JSONArray jsonArray = new JSONArray(((JSONObject) jsonObject.get("response")).getString("items"));
+
+        Log.d(TAG,"jsonArray  1221 " + jsonArray );
+        realmController.addData(jsonArray);
+    } catch (JSONException e) {
+        e.printStackTrace();
+    }
+            Log.d(TAG,"realmController " + realmController.getInfo(atributImage) ) ;
+}
+
     private void parseJsonVk(VKResponse response, String field_name){
 
         JSONObject jsonObject = response.json;
-        Log.d(TAG, "Post jsonObject: "+ field_name+ " " + jsonObject);
-
-        String owner = null;
-        String user_id = null;
-
         try {
-
-            JSONArray jsonArray = new JSONArray(((JSONObject) jsonObject.get("response")).getString("items"));
-
-            for( int i=0; i<jsonArray.length();i++){
-                JSONObject json_obj=jsonArray.getJSONObject(i);
-                owner = json_obj.getString(field_name);
-
-                if(!field_name.equals("size")){
-                    user_id=json_obj.getString("id");
-                    atributImage.put(user_id,owner);
-
-                }else{ album_size =owner; }
-
-                Log.d(TAG, "Post owner " + i + "  " + owner );
-            }
-
-        } catch (JSONException e) {
+            album_size = jsonObject.getString(field_name);
+        }
+        catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
-
     public void getUrlPhotoClub(){
-
 
         VKRequest vkRequest_size_album =  VKParametersRequst(vk_club_id,"album_ids",album_id,"1",
                 version_vk_api_,"photos.getAlbums");
@@ -104,9 +102,6 @@ public abstract class VkRequestUrlImage  {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
-                JSONObject jsonObject = response.json;
-                Log.d(TAG, "Post jsonObject: vkRequest1 " + jsonObject);
-
                 parseJsonVk(response,"size");
             }
         });
@@ -120,7 +115,7 @@ public abstract class VkRequestUrlImage  {
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
 
-                parseJsonVk(response,"photo_604");
+                parseJsonVk(response);
 
                 initImageBitmaps();
                 initRecyclerView();
@@ -142,22 +137,10 @@ public abstract class VkRequestUrlImage  {
 
     }
 
-/*    protected void initImageBitmaps(){
-        Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
-        for(int i=0 ; i<atributImage.size() && i<10;i++){
-
-            mImageUrls.add(atributImage.valueAt(i));
-            mNames.add(atributImage.keyAt(i));
-
-            atributImage.removeAt(i);
-
-        }
-        Log.d(TAG," Attrimut Image :" +atributImage);
-    }*/
 
     public abstract void initImageBitmaps();
 
     public abstract void initRecyclerView();
 
-  //  public abstract void initRecyclerView(VkRequestUrlImage vkRequestUrlImage);
+    //  public abstract void initRecyclerView(VkRequestUrlImage vkRequestUrlImage);
 }

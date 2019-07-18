@@ -1,6 +1,7 @@
 package com.example.androidtest;
 
 import com.vk.sdk.VKSdk;
+import io.realm.Realm;
 
 public class ApplicationContext extends android.app.Application {
     //private static final int VK_ID = 7022035;
@@ -25,6 +26,7 @@ public class ApplicationContext extends android.app.Application {
 
         //VKSdk.initialize(sdkListener, VK_APP_ID);
      //   VKSdk.initialize(sdkListener, VK_ID,VKAccessToken.tokenFromSharedPreferences(this,sTokenKey));
+        Realm.init(this);
         VKSdk.initialize(this);
 
     }

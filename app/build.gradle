@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 27
@@ -37,4 +37,8 @@ dependencies {
     /**VK SDK*/
    /* compile project(':vksdk_library')*/
     implementation 'com.vk:androidsdk:1.6.5'
+
+    /**RealmRecyclerView */
+    implementation 'com.github.thorbenprimke:realm-recyclerview:0.9.23'
+
 }

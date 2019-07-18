@@ -1,7 +1,10 @@
 package com.example.androidtest;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.util.ArraySet;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +13,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -36,44 +40,65 @@ public class MainActivity extends AppCompatActivity  {
     public static boolean loading=true ;
     private String album_size;
 
-    public static final String APP_PREFERENCES= "url_images";
-
-   public static VkRequestUrlImage vkRequestUrlImage;
+    public static VkRequestUrlImage vkRequestUrlImage;
 
 
+    public static final String APP_PREFERENCES= "data_images";
+    public static final String APP_PREFERENCES_URL="Url";
+    public static final String APP_PREFERENCES_ID="Id";
+
+    SharedPreferences mSettings;
+
+    RealmController realmController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
-VkRequestUrlImage vkRequestUrlImage= new VkRequestUrlImage() {
-    @Override
-    public void initImageBitmaps() {
-        atImage=atributImage;
+
+        OnShowSettings();
         inittImageBitmaps();
-    }
-
-    @Override
-    public void initRecyclerView() {
         inittRecyclerView();
-    }
-};
+
+        VkRequestUrlImage vkRequestUrlImage= new VkRequestUrlImage() {
+            @Override
+            public void initImageBitmaps() {
+                atImage=atributImage;
+                inittImageBitmaps();
+            }
+
+            @Override
+            public void initRecyclerView() {
+                inittRecyclerView();
+            }
+        };
+
+
+
+
+
 
         vkRequestUrlImage.getUrlPhotoClub();
-
     }
 
-       public void inittRecyclerView(){
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        OnPutSettings();
+    }
 
-         RecyclerView recyclerView = findViewById(R.id.recycler_view);
+    public void inittRecyclerView(){
 
-         final StaggeredRecyclerViewAdapter staggeredRecyclerViewAdapter =
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+
+        final StaggeredRecyclerViewAdapter staggeredRecyclerViewAdapter =
                 new StaggeredRecyclerViewAdapter(MainActivity.this, mNames, mImageUrls);
 
-         RecyclerView.LayoutManager staggeredGridLayoutManager =
+        RecyclerView.LayoutManager staggeredGridLayoutManager =
                 new StaggeredGridLayoutManager(NUM_COLUMNS, LinearLayoutManager.VERTICAL);
 
         recyclerView.addOnScrollListener(new EndlessScrollListener(loading) {
@@ -83,10 +108,12 @@ VkRequestUrlImage vkRequestUrlImage= new VkRequestUrlImage() {
 
                 Log.d(TAG,"loadMoreItem : " + mImageUrls + " "+ mNames);
                 inittImageBitmaps();
-            staggeredRecyclerViewAdapter.notifyDataSetChanged();
-            loading = true;
+                staggeredRecyclerViewAdapter.notifyDataSetChanged();
+                loading = true;
+
             }
         } );
+
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);
 
@@ -104,6 +131,33 @@ VkRequestUrlImage vkRequestUrlImage= new VkRequestUrlImage() {
         }
         Log.d(TAG," Attrimut Image :" +atImage);
     }
+
+
+    public void OnPutSettings(){
+        SharedPreferences.Editor editor = mSettings.edit();
+        /**TODO поэксперементировать с записью в preferences поробовать String вместо ArraySet*/
+        editor.putStringSet(APP_PREFERENCES_ID, new ArraySet<>(mNames));
+        editor.putStringSet(APP_PREFERENCES_URL, new ArraySet<>(mImageUrls));
+        editor.apply();
+    }
+
+    public void OnShowSettings(){
+        ArrayList<String> Urls;
+        ArrayList<String> Ids;
+
+        Set<String> Url = mSettings.getStringSet(APP_PREFERENCES_URL, new ArraySet<String>());
+        Set<String> Id =  mSettings.getStringSet(APP_PREFERENCES_ID, new ArraySet<String>() );
+
+        Urls= new ArrayList(Url);
+        Ids= new ArrayList<>(Id) ;
+
+        for(int i =0; i<Urls.size()&& Urls.size()==Ids.size();i++) {
+            atImage.put(Ids.get(i),Urls.get(i)); }
+
+        Log.d(TAG, "mImageUrls OnShowSettings :"+ mImageUrls);
+        Log.d(TAG, "mNames OnShowSettings :"+ mNames);
+
+    }
    /* private VKRequest VKParametersRequst(String owner_id,String album_ids, String album_id,
                                          String count_sample,String version_vk_api, String method_api){
 
@@ -111,6 +165,7 @@ VkRequestUrlImage vkRequestUrlImage= new VkRequestUrlImage() {
                 "access_token", vk_service_token,"count",count_sample, "v", version_vk_api);
         VKRequest vkRequest = new VKRequest(method_api,vkParameters);
         vkRequest.setPreferredLang("ru");
+
 
         return vkRequest;
     }
