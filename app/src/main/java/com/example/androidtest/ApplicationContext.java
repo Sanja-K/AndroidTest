@@ -1,9 +1,12 @@
 package com.example.androidtest;
 
 import com.vk.sdk.VKSdk;
+
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class ApplicationContext extends android.app.Application {
+    private Realm realm;
     //private static final int VK_ID = 7022035;
   //  public static final String VK_API_VERSION = "1.6.5";
    // private static String sTokenKey = "568be899568be899568be899ee56e0cd4a5568b568be8990b8f1319705eba6da6ccadbe";
@@ -24,9 +27,13 @@ public class ApplicationContext extends android.app.Application {
     public void onCreate() {
         super.onCreate();
 
+
         //VKSdk.initialize(sdkListener, VK_APP_ID);
      //   VKSdk.initialize(sdkListener, VK_ID,VKAccessToken.tokenFromSharedPreferences(this,sTokenKey));
         Realm.init(this);
+
+        RealmConfiguration config = new RealmConfiguration.Builder().build();
+        realm.setDefaultConfiguration(config);
         VKSdk.initialize(this);
 
     }
