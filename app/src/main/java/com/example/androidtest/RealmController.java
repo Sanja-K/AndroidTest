@@ -6,7 +6,6 @@ import android.util.Log;
 import org.json.JSONArray;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 import static android.support.constraint.Constraints.TAG;
@@ -16,8 +15,7 @@ public class RealmController {
     private Realm realm;
 
     public RealmController() {
-        RealmConfiguration config = new RealmConfiguration.Builder().build();
-        realm.setDefaultConfiguration(config);
+
         this.realm = Realm.getDefaultInstance();
 
     }
