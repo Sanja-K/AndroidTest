@@ -1,9 +1,12 @@
 package com.example.androidtest;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class Model extends RealmObject {
     private String photo_604;
+
+    @PrimaryKey
     private String id;
 
     /**TODO попробовать перенести id или url  в другую модель либо через первичный ключ */
