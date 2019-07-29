@@ -1,20 +1,23 @@
 package com.example.androidtest;
 
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener  {
 
     private static final int VK_ID = 7022035;
 
@@ -26,11 +29,12 @@ public class MainActivity extends AppCompatActivity  {
 
     private ArrayMap<String,String> atImage =new ArrayMap<>() ;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public static boolean loading=true ;
     private String album_size;
 
-    public static VkRequestUrlImage vkRequestUrlImage;
+    VkRequestUrlImage vkRequestUrlImage =new VkRequestUrlImage();
 
     RealmController realmController;
 
@@ -39,15 +43,20 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setColorSchemeColors(
+                  Color.RED, Color.GREEN, Color.BLUE, Color.CYAN);
+
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Model> results;
-
         results = realm.where(Model.class)
                 .findAll();
 
         inittRecyclerView(results);
 
-        VkRequestUrlImage vkRequestUrlImage= new VkRequestUrlImage() {
+/*
+        VkRequestUrlImage vkRequestUrlImage= new VkRequestUrlImage() {*/
+/*
             @Override
             public void initImageBitmaps() {
              //   atImage=atributImage;
@@ -57,10 +66,14 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             public void initRecyclerView() {
               //  inittRecyclerView();
-            }
-        };
+            }*//*
 
-       // vkRequestUrlImage.getUrlPhotoClub();
+        };
+*/
+
+        vkRequestUrlImage.getUrlPhotoClub();
+
+        mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
 
@@ -87,7 +100,7 @@ public class MainActivity extends AppCompatActivity  {
             public void loadMoreItem() {
 
                 Log.d(TAG,"loadMoreItem : " + mImageUrls + " "+ mNames);
-                inittImageBitmaps();
+               // inittImageBitmaps();
                 staggeredRecyclerViewAdapter.notifyDataSetChanged();
                 loading = true;
 
@@ -109,5 +122,16 @@ public class MainActivity extends AppCompatActivity  {
 
         }
         Log.d(TAG," Attrimut Image :" +atImage);
+    }
+
+    @Override
+    public void onRefresh() {
+        Log.d(TAG, " loading : " +vkRequestUrlImage.loading);
+        if(!vkRequestUrlImage.loading){
+            Toast.makeText(getApplicationContext(),"onRefresh",Toast.LENGTH_SHORT);
+            vkRequestUrlImage.getUrlPhotoClub();
+
+        }
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 }

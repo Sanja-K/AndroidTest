@@ -26,15 +26,29 @@ public class RealmController {
             public void execute(Realm realm) {
 
                 realm.createAllFromJson(Model.class,jsonArray);
-             /*   Model realmObject = realm.createObject(Model.class);
-                realmObject.setId_image(id_image);
-                realmObject.setUrl_image(url);*/
 
             }
         });
 
     }
 
+
+    public void updateInfo( final JSONArray jsonArray) {
+
+realm.executeTransaction(new Realm.Transaction() {
+    @Override
+    public void execute(Realm realm) {
+
+        realm.createOrUpdateAllFromJson(Model.class, jsonArray);
+        //realm.copyToRealmOrUpdate((Iterable<RealmModel>) jsonArray);
+
+        Log.d(TAG,"updateInfo " );
+
+    }
+});
+       // Model realmObject = realm.where(Model.class).equalTo("id", id_image).findFirst();
+
+    }
 
     public RealmResults<Model> getInfo(final ArrayMap<String,String> arrayMap) {
 
@@ -57,16 +71,6 @@ public class RealmController {
         return realm.where(Model.class).findAll();
     }
 
-
-    public void updateInfo( String id_image, String url) {
-       /* realm.beginTransaction();
-
-        Model realmObject = realm.where(Model.class).equalTo("id", id).findFirst();
-        realmObject.setId_image(id_image);
-        realmObject.setUrl_image(url);
-
-        realm.commitTransaction();*/
-    }
 
     public void removeItemById() {
         realm.executeTransaction(new Realm.Transaction() {

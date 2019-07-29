@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import static com.vk.sdk.VKUIHelper.getApplicationContext;
 
 
-public abstract class VkRequestUrlImage  {
+public class VkRequestUrlImage  {
 
 
     private static final int VK_ID = 7022035;
@@ -68,13 +68,13 @@ public abstract class VkRequestUrlImage  {
     private void parseJsonVk(VKResponse response){
     JSONObject jsonObject = response.json;
 
-    realmController.removeItemById();
-
         try {
         JSONArray jsonArray = new JSONArray(((JSONObject) jsonObject.get("response")).getString("items"));
-
         Log.d(TAG,"jsonArray  1221 " + jsonArray );
-        realmController.addData(jsonArray);
+
+        realmController.updateInfo(jsonArray);
+
+        //realmController.addData(jsonArray);
     } catch (JSONException e) {
         e.printStackTrace();
     }
@@ -93,6 +93,8 @@ public abstract class VkRequestUrlImage  {
     }
 
     public void getUrlPhotoClub(){
+
+        loading=true;
 
         VKRequest vkRequest_size_album =  VKParametersRequst(vk_club_id,"album_ids",album_id,"1",
                 version_vk_api_,"photos.getAlbums");
@@ -117,30 +119,33 @@ public abstract class VkRequestUrlImage  {
 
                 parseJsonVk(response);
 
-                initImageBitmaps();
-                initRecyclerView();
+               // initImageBitmaps();
+               // initRecyclerView();
+               // loading=false;
             }
 
 
             @Override
             public void onError(VKError error) {
+
                 Log.d(TAG, "POST Error"+ error);
                 Toast.makeText(getApplicationContext(), "POST Error : "+ error, Toast.LENGTH_SHORT).show();
+               // loading=false;
             }
             @Override
             public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+
                 Log.d(TAG, "POST attemptFailed");
                 Toast.makeText(getApplicationContext(), "POST attemptFailed: ", Toast.LENGTH_SHORT).show();
-
+              //  loading=false;
             }
         });
 
+            loading =false;
     }
 
 
-    public abstract void initImageBitmaps();
+  // public abstract void initImageBitmaps();
+  //  public abstract void initRecyclerView();
 
-    public abstract void initRecyclerView();
-
-    //  public abstract void initRecyclerView(VkRequestUrlImage vkRequestUrlImage);
 }
